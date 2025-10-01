@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CircuitMasters Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const RaceList = () => {
+            const [races, setRaces] = useState([]);
+            const [newRace, setNewRace] = useState({ name: '', date: '', location: '' });
+
+            useEffect(() => {
+                fetchRaces();
+            }, []);
+
+            const fetchRaces = async () => {
+                const response = await axios.get('http://localhost:5001/api/races');
+                setRaces(response.data);
+            };
+
+            const handleAddRace = async (e) => {
+                e.preventDefault();
+                const raceData = {
+                    name: newRace.name,
+                    date: new Date(newRace.date).toISOString(),
+                    location: newRace.location
+                };
+                await axios.post('http://localhost:5001/api/races', raceData);
+                setNewRace({ name: '', date: '', location: '' });
+                fetchRaces();
+            };
+
+            return (
+                <div className="container mx-auto p-4">
+                    <h2 className="text-2xl font-bold mb-4">Races</h2>
+                    <form onSubmit={handleAddRace} className="mb-4">
+                        <input
+                            type="text"
+                            value={newRace.name}
+                            onChange={(e) => setNewRace({ ...newRace, name: e.target.value })}
+                            placeholder="Name"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="date"
+                            value={newRace.date}
+                            onChange={(e) => setNewRace({ ...newRace, date: e.target.value })}
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="text"
+                            value={newRace.location}
+                            onChange={(e) => setNewRace({ ...newRace, location: e.target.value })}
+                            placeholder="Location"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <button type="submit" className="bg-green-500 text-white p-2 rounded">Add Race</button>
+                    </form>
+                    <ul className="list-disc pl-5">
+                        {races.map(race => (
+                            <li key={race.id} className="mb-2">
+                                {race.name} - {new Date(race.date).toLocaleDateString()} - {race.location}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
+        const TeamList = () => {
+            const [teams, setTeams] = useState([]);
+            const [newTeam, setNewTeam] = useState({ name: '', sponsor: '' });
+
+            useEffect(() => {
+                fetchTeams();
+            }, []);
+
+            const fetchTeams = async () => {
+                const response = await axios.get('http://localhost:5001/api/teams');
+                setTeams(response.data);
+            };
+
+            const handleAddTeam = async (e) => {
+                e.preventDefault();
+                const teamData = { name: newTeam.name, sponsor: newTeam.sponsor };
+                await axios.post('http://localhost:5001/api/teams', teamData);
+                setNewTeam({ name: '', sponsor: '' });
+                fetchTeams();
+            };
+
+            return (
+                <div className="container mx-auto p-4">
+                    <h2 className="text-2xl font-bold mb-4">Teams</h2>
+                    <form onSubmit={handleAddTeam} className="mb-4">
+                        <input
+                            type="text"
+                            value={newTeam.name}
+                            onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
+                            placeholder="Name"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="text"
+                            value={newTeam.sponsor}
+                            onChange={(e) => setNewTeam({ ...newTeam, sponsor: e.target.value })}
+                            placeholder="Sponsor"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <button type="submit" className="bg-green-500 text-white p-2 rounded">Add Team</button>
+                    </form>
+                    <ul className="list-disc pl-5">
+                        {teams.map(team => (
+                            <li key={team.id} className="mb-2">
+                                {team.name} - {team.sponsor}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
+        const ResultList = () => {
+            const [results, setResults] = useState([]);
+            const [newResult, setNewResult] = useState({ raceId: '', teamId: '', position: '', time: '' });
+
+            useEffect(() => {
+                fetchResults();
+            }, []);
+
+            const fetchResults = async () => {
+                const response = await axios.get('http://localhost:5001/api/results');
+                setResults(response.data);
+            };
+
+            const handleAddResult = async (e) => {
+                e.preventDefault();
+                const [hours, minutes, seconds] = newResult.time.split(':').map(Number);
+                const resultData = {
+                    raceId: parseInt(newResult.raceId),
+                    teamId: parseInt(newResult.teamId),
+                    position: parseInt(newResult.position),
+                    time: new TimeSpan(hours, minutes, seconds)
+                };
+                await axios.post('http://localhost:5001/api/results', resultData);
+                setNewResult({ raceId: '', teamId: '', position: '', time: '' });
+                fetchResults();
+            };
+
+            return (
+                <div className="container mx-auto p-4">
+                    <h2 className="text-2xl font-bold mb-4">Results</h2>
+                    <form onSubmit={handleAddResult} className="mb-4">
+                        <input
+                            type="number"
+                            value={newResult.raceId}
+                            onChange={(e) => setNewResult({ ...newResult, raceId: e.target.value })}
+                            placeholder="Race ID"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="number"
+                            value={newResult.teamId}
+                            onChange={(e) => setNewResult({ ...newResult, teamId: e.target.value })}
+                            placeholder="Team ID"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="number"
+                            value={newResult.position}
+                            onChange={(e) => setNewResult({ ...newResult, position: e.target.value })}
+                            placeholder="Position"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <input
+                            type="text"
+                            value={newResult.time}
+                            onChange={(e) => setNewResult({ ...newResult, time: e.target.value })}
+                            placeholder="Time (HH:MM:SS)"
+                            className="p-2 mr-2 border rounded"
+                        />
+                        <button type="submit" className="bg-green-500 text-white p-2 rounded">Add Result</button>
+                    </form>
+                    <ul className="list-disc pl-5">
+                        {results.map(result => (
+                            <li key={result.id} className="mb-2">
+                                Race {result.raceId} - Team {result.teamId} - Pos {result.position} - Time {result.time.toString()}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
+        const App = () => (
+            <div>
+                <header className="bg-gray-800 text-white p-4">
+                    <h1 className="text-3xl font-bold">CircuitMasters</h1>
+                </header>
+                <RaceList />
+                <TeamList />
+                <ResultList />
+            </div>
+        );
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
