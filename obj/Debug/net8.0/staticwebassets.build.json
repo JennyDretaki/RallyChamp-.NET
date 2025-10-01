@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "rSOqyuk5y2GNO8jrolNBfm+8t3uHK9EzHGYXJQSHNHg=",
+  "Source": "RallyChampAPI",
+  "BasePath": "_content/RallyChampAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
